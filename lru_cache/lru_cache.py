@@ -1,3 +1,12 @@
+from doubly_linked_list import DoublyLinkedList, ListNode
+
+class Node:
+    def __init__(self, key=None, value=None, prev=None, next=None):
+        self.key = key
+        self.value = value
+        self.prev = prev
+        self.next = next
+
 class LRUCache:
     """
     Our LRUCache class keeps track of the max number of nodes it
@@ -7,7 +16,10 @@ class LRUCache:
     to every node stored in the cache.
     """
     def __init__(self, limit=10):
-        pass
+        self.limit = limit
+        self.storage = {}
+        self.head = Node()
+        self.tail = Node()
 
     """
     Retrieves the value associated with the given key. Also
@@ -17,7 +29,14 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        pass
+        if self.storage[key] is not None:
+            value = self.storage[key]
+        i = self.head
+        while i is not None:
+            if i.key == key:
+                node_to_remove = i
+            i = i.next
+        node_to_remove._remove()
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -31,3 +50,4 @@ class LRUCache:
     """
     def set(self, key, value):
         pass
+
