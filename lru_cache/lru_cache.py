@@ -1,33 +1,92 @@
+
+class Node:
+	def __init__(self, key, value):
+		self.key = key
+		self.value = value
+		self.next = None
+		self.prev = None
+
+class DoublyLinkedList:
+	def __init__(self):
+		self.head = None
+		self.tail = None
+		self.length = 0
+	
+	def push(self, key, value):
+		''' Wrap a value in a node and add to the head of the linked list '''
+		new_node = Node(key, value)
+		new_node.next = self.head
+		if not self.head and not self.tail:
+			self.head = new_node
+			self.tail = new_node
+		if self.head is not None:
+			self.head.prev = new_node
+		self.head = new_node
+		self.length += 1
+
+	def delete(self, node: Node):
+		if node == None:
+			return
+		if self.head == node:
+			self.head = self.head.next
+		if self.tail == node:
+			self.tail = self.tail.prev
+		if node.next is not None:
+			node.next.prev = node.prev
+		if node.prev is not None:
+			node.prev.next = node.next
+		self.length -= 1
+
+	def print_list(self):
+		i = self.head
+		print(f"Length: {self.length}")
+		while i != None:
+			if i == self.head:
+				print(f"Head: {i.key} : {i.value}")
+			elif i == self.tail:
+				print(f"Tail: {i.key} : {i.value}")
+			else:
+				print(f"{i.key} : {i.value}")
+			i = i.next
+		print("\n")
+
 class LRUCache:
-    """
-    Our LRUCache class keeps track of the max number of nodes it
-    can hold, the current number of nodes it is holding, a doubly-
-    linked list that holds the key-value entries in the correct
-    order, as well as a storage dict that provides fast access
-    to every node stored in the cache.
-    """
-    def __init__(self, limit=10):
-        pass
+	def __init__(self, limit=3):
+		self.limit = limit
+		self.storage = {}
+		self.entries = DoublyLinkedList()
 
-    """
-    Retrieves the value associated with the given key. Also
-    needs to move the key-value pair to the end of the order
-    such that the pair is considered most-recently used.
-    Returns the value associated with the key or None if the
-    key-value pair doesn't exist in the cache.
-    """
-    def get(self, key):
-        pass
+	def get(self, key):
+		if key in self.storage:
+			value_node = self.storage[key]
+			value = value_node.value
+			self.entries.delete(value_node)
+			self.entries.push(key, value)
+			return value
+		else:
+			return None
 
-    """
-    Adds the given key-value pair to the cache. The newly-
-    added pair should be considered the most-recently used
-    entry in the cache. If the cache is already at max capacity
-    before this entry is added, then the oldest entry in the
-    cache needs to be removed to make room. Additionally, in the
-    case that the key already exists in the cache, we simply
-    want to overwrite the old value associated with the key with
-    the newly-specified value.
-    """
-    def set(self, key, value):
-        pass
+	def set(self, key, value):
+		if key not in self.storage:
+			if self.entries.length < self.limit:
+				self.entries.push(key, value)
+				self.storage[key] = self.entries.head
+			else:
+				LRU = self.entries.tail
+				print(LRU.key, LRU.value)
+				del self.storage[LRU.key]
+				self.entries.delete(LRU)
+				self.entries.push(key, value)
+				self.storage[key] = self.entries.head
+		elif key in self.storage:
+			value_node = self.storage[key]
+			del self.storage[value_node.key]
+			self.entries.delete(value_node)
+			self.entries.push(key, value)
+			self.storage[key] = self.entries.head
+
+
+	def print_cache(self):
+		for k, v in self.storage.items():
+			print(f"{k}: ({v}, {v.value})")
+		self.entries.print_list()
